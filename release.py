@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package the installed /Applications/微信轻转.app into build/微信轻转-<version>.dmg for a GitHub Release.
+"""Package the installed /Applications/微信轻转.app into build/WeChatLite-<version>-<arch>.dmg for a GitHub Release.
 
 Run `python3 build.py` first so the installed copy is current. The DMG is built from a temporary staging
 folder that is deleted right away and never registered, so no second copy of the share extensions exists.
@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parent
 APP = Path('/Applications/微信轻转.app')
 info = plistlib.loads((APP / 'Contents/Info.plist').read_bytes())
 version = info['CFBundleShortVersionString']
-dmg = ROOT / 'build' / f'微信轻转-{version}-{platform.machine()}.dmg'
+# GitHub strips non-ASCII characters from asset names, so the file name stays ASCII.
+dmg = ROOT / 'build' / f'WeChatLite-{version}-{platform.machine()}.dmg'
 
 subprocess.run(['codesign', '--verify', '--deep', '--strict', str(APP)], check=True)
 dmg.unlink(missing_ok=True)

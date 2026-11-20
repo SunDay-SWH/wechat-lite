@@ -21,8 +21,8 @@ python3 build.py
 ## 发布 Release
 
 1. 改 `build.py` 里的 `CFBundleShortVersionString`（版本号）和 `CFBundleVersion`（构建号），运行 `python3 build.py` 安装新版。
-2. `python3 release.py`：把已安装的 `/Applications/微信轻转.app` 打包成 `build/微信轻转-<版本>-<架构>.dmg`（临时目录打包后即删除，不会多出一份已注册的分享扩展）。
-3. 提交并推送后发布：`gh release create v<版本> build/微信轻转-<版本>-<架构>.dmg --title "微信轻转 <版本>" --notes "..."`。
+2. `python3 release.py`：把已安装的 `/Applications/微信轻转.app` 打包成 `build/WeChatLite-<版本>-<架构>.dmg`（文件名用英文，GitHub 会去掉附件名里的中文；临时目录打包后即删除，不会多出一份已注册的分享扩展）。
+3. 提交并推送后发布：`gh release create v<版本> build/WeChatLite-<版本>-<架构>.dmg --title "微信轻转 <版本>" --notes "..."`。
 
 DMG 只含当前机器架构，ad-hoc 签名、未经 Apple 公证；首次打开需在「系统设置 → 隐私与安全性」中点「仍要打开」。
 
