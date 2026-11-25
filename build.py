@@ -68,8 +68,8 @@ run(*common, '-module-name', 'WeChatLiteShare', '-application-extension',
     ROOT / 'Sources/Core.swift', ROOT / 'Sources/ShareViewController.swift',
     '-o', ext / 'Contents/MacOS/WeChatLiteShare')
 
-base = {'CFBundleInfoDictionaryVersion': '6.0', 'CFBundleShortVersionString': '0.1.1',
-        'CFBundleVersion': '2', 'CFBundleDevelopmentRegion': 'zh_CN', 'LSMinimumSystemVersion': '14.0'}
+base = {'CFBundleInfoDictionaryVersion': '6.0', 'CFBundleShortVersionString': '0.1.2',
+        'CFBundleVersion': '3', 'CFBundleDevelopmentRegion': 'zh_CN', 'LSMinimumSystemVersion': '14.0'}
 plist(app_contents / 'Info.plist', dict(base, **{
     'CFBundleIdentifier': APP_ID, 'CFBundleName': '微信轻转', 'CFBundleDisplayName': '微信轻转',
     'CFBundleExecutable': 'WeChatLite', 'CFBundlePackageType': 'APPL', 'LSUIElement': True,
