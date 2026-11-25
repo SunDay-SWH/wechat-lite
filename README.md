@@ -29,7 +29,7 @@ DMG 只含当前机器架构，ad-hoc 签名、未经 Apple 公证；首次打�
 ## 结构
 
 - `Sources/Core.swift`：文件限制、临时文件转存、私有本地目录、分享请求、提示词偏好和待粘贴的消息。
-- `Sources/App.swift`：常规 Dock 应用（关窗口不退出，退出时停用分享入口）：设置窗口（处理方式、自动粘贴与分享入口状态）及粘贴到 Codex / Claude 当前聊天。
+- `Sources/App.swift`：常规 Dock 应用（关窗口不退出，退出时停用分享入口）：设置窗口（处理方式、自动粘贴与分享入口状态）及粘贴到 Codex / Claude 当前聊天，或「仅复制」到剪贴板。
 - `Sources/InputFocus.swift`：启用目标应用的网页辅助功能，从当前窗口识别聊天编辑器；支持应用级焦点缺失时核对编辑器自身焦点、限时重试，并排除搜索框和终端。
 - `Sources/ShareViewController.swift`：macOS `com.apple.share-services` 扩展，接收 NSItemProvider。
 - `Tests/CoreTests.swift`：内容完整性、链接编码、持久化、边界及请求校验。
@@ -51,7 +51,7 @@ DMG 只含当前机器架构，ad-hoc 签名、未经 Apple 公证；首次打�
 
 ## 验证依据
 
-- 系统分享菜单中可见并已启用「Codex」「Claude」两个入口。
+- 系统分享菜单中可见并已启用「Codex」「Claude」「仅复制」三个入口。
 - 合成 `.txt` 文件从系统分享扩展到主程序、生成本地副本并唤起 Codex，用户确认草稿出现。
 - 纯文字分享已通过 UI 核对，默认自动打开草稿开关已恢复。
 - 没有使用真实微信群导出记录、图片/视频等实际微信附件做兼容性验收。

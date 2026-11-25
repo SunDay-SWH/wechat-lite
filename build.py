@@ -99,7 +99,8 @@ def share_plist(bundle_id, target, name):
 
 # The Codex entry keeps its original bundle ID so the existing share-menu enablement survives.
 SHARES = [(ext, EXT_ID, 'codex', 'Codex'),
-          (app_contents / 'PlugIns' / 'WeChatLiteShareClaude.appex', EXT_ID + '.claude', 'claude', 'Claude')]
+          (app_contents / 'PlugIns' / 'WeChatLiteShareClaude.appex', EXT_ID + '.claude', 'claude', 'Claude'),
+          (app_contents / 'PlugIns' / 'WeChatLiteShareCopy.appex', EXT_ID + '.copy', 'copy', '仅复制')]
 for bundle, bundle_id, target, name in SHARES:
     if bundle != ext:
         shutil.rmtree(bundle, ignore_errors=True)

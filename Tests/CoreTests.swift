@@ -66,6 +66,10 @@ struct CoreTests {
         try check(RelayCore.preferences(at: root).preset == "raw", "旧版偏好升级为仅原文")
         try check(!RelayCore.preferences(at: root).showInDock, "旧版偏好默认不常驻 Dock")
         try check(RelayTarget.allCases.allSatisfy(RelayCore.preferences(at: root).shows), "旧版偏好默认显示全部分享入口")
+        try check(RelayTarget.copy.bundleID == nil && RelayTarget.copy.extensionID == RelayCore.extensionID + ".copy"
+                  && RelayTarget.codex.bundleID != nil, "仅复制入口不打开应用，并有独立扩展 ID")
+        try check(RelayCore.shellQuoted([URL(fileURLWithPath: "/a b/聊天记录.zip"), URL(fileURLWithPath: "/x/it's.txt")])
+                  == #"'/a b/聊天记录.zip' '/x/it'\''s.txt'"#, "终端路径正确加引号")
         print("\(passed) meaningful checks passed.")
     }
 }

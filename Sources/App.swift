@@ -88,11 +88,26 @@ final class RelayModel: ObservableObject {
         guard written else { throw RelayError.message("未能写入剪贴板，请重试。") }
     }
 
+    /// Terminals ignore file URLs on paste and read only plain text, so the first item also carries the quoted
+    /// paths: Finder and chat apps still take the files, a terminal gets the paths.
+    private func putAnywhere(_ urls: [URL]) throws {
+        let items = urls.enumerated().map { index, url -> NSPasteboardItem in
+            let item = NSPasteboardItem()
+            item.setString(url.absoluteString, forType: .fileURL)
+            if index == 0 { item.setString(RelayCore.shellQuoted(urls), forType: .string) }
+            return item
+        }
+        let board = NSPasteboard.general
+        board.clearContents()
+        guard board.writeObjects(items) else { throw RelayError.message("未能写入剪贴板，请重试。") }
+    }
+
     /// Pastes into whatever chat is open in the target app. Codex deep links can only prefill a brand-new thread
     /// (and `path=` creates a new project), so the clipboard is the only way to reach the current chat.
     func send(to target: RelayTarget) {
         guard !busy else { return }
-        guard let targetApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: target.bundleID) else {
+        guard let bundleID = target.bundleID else { copyOnly(); return }
+        guard let targetApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
             deliveryFailed("没有找到 \(target.name) 桌面应用。请先安装它。", target: target); return
         }
         let retryPlan = failedTarget == target ? remainingDelivery : nil
@@ -125,6 +140,25 @@ final class RelayModel: ObservableObject {
                     }
                 }
             } catch { deliveryFailed(error.localizedDescription, target: target); finished() }
+        }
+    }
+
+    /// The clipboard-only entry: no app is opened and nothing is typed, so it needs no Accessibility grant.
+    /// Like a manual ⌘V elsewhere, the attachments win over the prompt text when both exist.
+    private func copyOnly() {
+        busy = true
+        status("正在整理内容…")
+        Task { @MainActor in
+            defer { finished() }
+            do {
+                let shared = try await message()
+                if let folder = shared.folder { lastFolder = folder }
+                guard let clip = clips(for: shared).last else { throw RelayError.message("没有可复制的内容。") }
+                if case .files(let urls) = clip { try putAnywhere(urls) } else { try put(clip) }
+                RelayCore.debug("copy: wrote \(shared.copiedFiles.isEmpty ? "text" : "\(shared.copiedFiles.count) files")")
+                status(shared.copiedFiles.isEmpty ? "文字已复制，到任意位置按 ⌘V 即可。"
+                       : "\(shared.copiedFiles.count) 个文件已复制。在访达或聊天中粘贴为文件，在终端中粘贴为路径（⌘V）。")
+            } catch { deliveryFailed(error.localizedDescription, target: .copy) }
         }
     }
 
@@ -200,7 +234,7 @@ final class RelayModel: ObservableObject {
         }
     }
 
-    /// Shows or hides the Codex / Claude entries in every share menu (pluginkit's per-user election).
+    /// Shows or hides the share entries in every share menu (pluginkit's per-user election).
     static func setShareEntries(_ shown: (RelayTarget) -> Bool) {
         for target in RelayTarget.allCases {
             let tool = Process()

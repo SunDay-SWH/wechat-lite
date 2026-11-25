@@ -16,18 +16,22 @@ struct SharedRequest: Codable {
     var target: RelayTarget? = nil
 }
 
-/// Desktop app a share is pasted into. Each one has its own share-menu entry, all built from one binary.
+/// Where a share goes. Each one has its own share-menu entry, all built from one binary.
 enum RelayTarget: String, Codable, CaseIterable {
     case codex
     case claude
+    /// Only puts the share on the clipboard, for pasting anywhere (e.g. a Terminal turns files into paths).
+    case copy
 
     /// Read from the share extension's Info.plist, so one binary serves every share-menu entry.
     static let infoKey = "WeChatLiteTarget"
 
-    var bundleID: String {
+    /// The desktop app pasted into; nil for the clipboard-only entry.
+    var bundleID: String? {
         switch self {
         case .codex: return "com.openai.codex"
         case .claude: return "com.anthropic.claudefordesktop"
+        case .copy: return nil
         }
     }
 
@@ -35,8 +39,12 @@ enum RelayTarget: String, Codable, CaseIterable {
         switch self {
         case .codex: return "Codex"
         case .claude: return "Claude"
+        case .copy: return "仅复制"
         }
     }
+
+    /// Title of the share sheet this entry opens.
+    var shareTitle: String { bundleID == nil ? "微信轻转 · 复制到剪贴板" : "微信轻转 · 发给 \(name)" }
 
     /// The Codex entry keeps the original extension ID so its share-menu enablement survives upgrades.
     var extensionID: String { self == .codex ? RelayCore.extensionID : RelayCore.extensionID + "." + rawValue }
@@ -127,6 +135,11 @@ enum RelayCore {
     static func savePreferences(_ value: RelayPreferences, at root: URL = root) throws {
         try privateDirectory(root)
         try writePrivate(JSONEncoder().encode(value), to: root.appendingPathComponent("preferences.json"))
+    }
+
+    /// Paths as a shell would accept them, space-separated, for pasting into a terminal.
+    static func shellQuoted(_ urls: [URL]) -> String {
+        urls.map { "'" + $0.path.replacingOccurrences(of: "'", with: "'\\''") + "'" }.joined(separator: " ")
     }
 
     static func safeName(_ name: String) -> String {

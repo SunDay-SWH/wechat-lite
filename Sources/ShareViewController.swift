@@ -20,7 +20,7 @@ final class ShareViewController: NSViewController {
 
     override func loadView() {
         view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 180))
-        let title = NSTextField(labelWithString: "微信轻转 · 发给 \(target.name)")
+        let title = NSTextField(labelWithString: target.shareTitle)
         title.font = .systemFont(ofSize: 18, weight: .semibold)
         statusLabel.font = .systemFont(ofSize: 13)
         statusLabel.textColor = .secondaryLabelColor
@@ -78,7 +78,8 @@ final class ShareViewController: NSViewController {
             let host = Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             let link = URL(string: "wechatlite://receive/\(jobID.uuidString)")!
             let config = NSWorkspace.OpenConfiguration()
-            config.activates = true
+            // Copy-only shares are handled in the background, so the user can switch straight to where they paste.
+            config.activates = target.bundleID != nil
             NSWorkspace.shared.open([link], withApplicationAt: host, configuration: config) { [weak self] _, error in
                 DispatchQueue.main.async {
                     guard let self, !self.cancelled else { return }
